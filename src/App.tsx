@@ -1,10 +1,12 @@
 import { FormEvent, useState } from "react";
-import { Button, TextField, Typography, Box, Container, Paper } from "@mui/material";
+import { Button, TextField, Typography, Box, Container, Paper, LinearProgress } from "@mui/material";
 
 export default function App() {
     const [url, setUrl] = useState<string>("");
     const [length, setLength] = useState("");
     const [topic, setTopic] = useState("");
+    const [progress, setProgress] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -15,6 +17,12 @@ export default function App() {
         }
 
         console.log("fetching video");
+        setIsLoading(true);
+        setProgress(0);
+
+        // Start simulating progress
+        simulateProgress();
+
         fetch(`http://localhost:8000/?topic=${topic}&length=${length}`, {
             method: "GET",
             headers: {
@@ -25,7 +33,26 @@ export default function App() {
             .then((url) => {
                 console.log(url);
                 setUrl(url);
+                setProgress(100); // Complete progress
+                setIsLoading(false);
             });
+    }
+
+    // Simulates the progress bar advancing over time
+    function simulateProgress() {
+        let currentProgress = 0;
+
+        const interval = setInterval(() => {
+            if (currentProgress >= 99) {
+                clearInterval(interval); // Stop at 99% if video is still loading
+                return;
+            }
+            currentProgress += Math.random() * 1.5 / length;
+            setProgress(Math.min(currentProgress, 99)); // Prevent exceeding 99%
+        }, 500);
+
+        // Clear interval when the video is received or on unmount
+        return () => clearInterval(interval);
     }
 
     return (
@@ -88,6 +115,31 @@ export default function App() {
                     </Button>
                 </Box>
             </Paper>
+            {isLoading && (
+                <Box mt={4} width="100%">
+                    <Typography variant="body1" align="center">
+                        Fetching your video...
+                    </Typography>
+                    <LinearProgress
+                        variant="determinate"
+                        value={progress}
+                        sx={{
+                            height: 10,
+                            borderRadius: 5,
+                            mt: 2,
+                            backgroundColor: "#e0e0e0", // Background (track) color
+                            "& .MuiLinearProgress-bar": {
+                                backgroundColor: "black", // Bar color
+                            },
+                        }}
+                    />
+                    {progress === 99 && (
+                        <Typography variant="caption" display="block" align="center" mt={1}>
+                            Almost there, processing might take a bit longer...
+                        </Typography>
+                    )}
+                </Box>
+            )}
             {url && (
                 <Box mt={4} style={{ width: "100%", textAlign: "center" }}>
                     <video
