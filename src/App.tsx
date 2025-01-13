@@ -23,7 +23,7 @@ export default function App() {
         // Start simulating progress
         simulateProgress();
 
-        fetch(`http://localhost:8000/?topic=${topic}&length=${length}`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/?topic=${topic}&length=${length}`, {
             method: "GET",
             headers: {
                 Accept: "video/mp4",
