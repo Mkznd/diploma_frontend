@@ -3,7 +3,7 @@ import { Button, TextField, Typography, Box, Container, Paper, LinearProgress } 
 
 export default function App() {
     const [url, setUrl] = useState<string>("");
-    const [length, setLength] = useState("");
+    const [length, setLength] = useState(0);
     const [topic, setTopic] = useState("");
     const [progress, setProgress] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -47,7 +47,7 @@ export default function App() {
                 clearInterval(interval); // Stop at 99% if video is still loading
                 return;
             }
-            currentProgress += Math.random() * 1.5 / length;
+            currentProgress += Math.random() * 1.5 / (length);
             setProgress(Math.min(currentProgress, 99)); // Prevent exceeding 99%
         }, 500);
 
@@ -94,7 +94,7 @@ export default function App() {
                         variant="outlined"
                         type="number"
                         value={length}
-                        onChange={(e) => setLength(e.target.value)}
+                        onChange={(e) => setLength(parseFloat(e.target.value))}
                         required
                         inputProps={{ min: 1 }}
                         fullWidth
